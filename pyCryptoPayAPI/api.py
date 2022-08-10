@@ -92,6 +92,13 @@ class pyCryptoPayAPI:
         else:
             return resp
 
+    @staticmethod
+    def get_assets():
+        """
+        Returns the list of supported assets by Crypto Pay API.
+        """
+        return ["BTC", "TON", "ETH", "USDT", "USDC", "BUSD"]
+
     def get_me(self):
         """
         getMe

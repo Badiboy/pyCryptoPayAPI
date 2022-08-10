@@ -30,6 +30,12 @@ def test_api_functions():
     run_and_print(lambda: client.get_balance())
     run_and_print(lambda: client.get_exchange_rates())
     run_and_print(lambda: client.get_currencies())
+    run_and_print(lambda: client.get_invoices(
+        "TON",
+        status="active",
+        offset=0,
+        count=10
+    ))
     run_and_print(lambda: client.create_invoice(
         "TON",
         1,

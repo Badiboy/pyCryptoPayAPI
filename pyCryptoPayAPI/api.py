@@ -21,7 +21,8 @@ class pyCryptoPayAPI:
         """
         Create the pyCryptoPayAPI instance.
 
-        :param test_net: use testnet instead of mainnet
+        :param api_token: API token obtained via @CryptoBot
+        :param test_net: (Optional) Use testnet instead of mainnet
         :param print_errors: (Optional) Print dumps on request errors
         """
         self.api_token = api_token
@@ -37,8 +38,6 @@ class pyCryptoPayAPI:
         headers = {
             "Crypto-Pay-API-Token": self.api_token
         }
-        # if use_address and not data.get("address"):
-        #     data["address"] = self.address
         try:
             resp = requests.get(
                 url=(TEST_API_URL if self.test_net else MAIN_API_URL) + method,
@@ -66,43 +65,22 @@ class pyCryptoPayAPI:
                 raise pyCryptoPayException(1, resp.get("error"))
             else:
                 raise pyCryptoPayException(1, "No error info provided")
-            # if ("error_code" in resp):
-            #     if self.print_errors:
-            #         print("Response: {}".format(resp))
-            #     code = resp.get("error_code")
-            #     if isinstance(code, str) and code.isdigit():
-            #         code = int(code)
-            #     raise pyTONException(code, "Error code returned")
-            # elif ("code" in resp):
-            #     if self.print_errors:
-            #         print("Response: {}".format(resp))
-            #     code = resp.get("code")
-            #     if isinstance(code, str) and code.isdigit():
-            #         code = int(code)
-            #     description = resp.get("description")
-            #     if not description:
-            #         description = resp.get("error")
-            #     if not description:
-            #         description = resp.get("message")
-            #     raise pyTONException(code, description)
-            # else:
-            #     if self.print_errors:
-            #         print("Response: {}".format(resp))
-            #     raise pyTONException(-5, "Unknown response structure, enable 'print_errors' to see response")
         else:
             return resp
 
     @staticmethod
     def get_assets():
         """
-        Returns the list of supported assets by Crypto Pay API.
+        Non-API method
+        Returns the list of assets supported by Crypto Pay API.
         """
         return ["BTC", "TON", "ETH", "USDT", "USDC", "BUSD"]
 
     def get_me(self):
         """
-        getMe
+        getMe method
         Use this method to test your app's authentication token.
+
         :return: On success, returns basic information about an app.
         """
         method = "getMe"
@@ -116,8 +94,9 @@ class pyCryptoPayAPI:
             expires_in = None
     ):
         """
-        createInvoice
+        createInvoice method
         Use this method to create a new invoice.
+
         :param asset: (String) Currency code. Supported assets: “BTC”, “TON”, “ETH”, “USDT”, “USDC” and “BUSD”.
         :param amount: (String) Amount of the invoice in float. For example: 125.50
         :param description: (String) Optional. Description for the invoice. User will see this description when they pay the invoice. Up to 1024 characters.
@@ -162,8 +141,9 @@ class pyCryptoPayAPI:
             comment = None, disable_send_notification  = None
     ):
         """
-        transfer
+        transfer method
         Use this method to send coins from your app's balance to a user.
+
         :param user_id: (Number) Telegram user ID. User must have previously used @CryptoBot (@CryptoTestnetBot for testnet).
         :param asset: (String) Currency code. Supported assets: “BTC”, “TON”, “ETH”, “USDT”, “USDC” and “BUSD”.
         :param amount: (String) Amount of the transfer in float. The minimum and maximum amounts for each of the support asset roughly correspond to the limit of 1-25000 USD. Use get_exchange_rates to convert amounts. For example: 125.50
@@ -191,8 +171,9 @@ class pyCryptoPayAPI:
             offset = None, count  = None
     ):
         """
-        getInvoices
+        getInvoices method
         Use this method to get invoices of your app.
+
         :param asset: (String) Currency code. Supported assets: “BTC”, “TON”, “ETH”, “USDT”, “USDC” and “BUSD”.
         :param invoice_ids: (String) Optional. Invoice IDs separated by comma.
         :param status: (String) Optional. Status of invoices to be returned. Available statuses: “active” and “paid”. Defaults to all statuses.
@@ -216,8 +197,9 @@ class pyCryptoPayAPI:
 
     def get_balance(self):
         """
-        getBalance
+        getBalance method
         Use this method to get a balance of your app.
+
         :return: Returns array of assets.
         """
         method = "getBalance"
@@ -225,8 +207,9 @@ class pyCryptoPayAPI:
 
     def get_exchange_rates(self):
         """
-        getExchangeRates
+        getExchangeRates method
         Use this method to get exchange rates of supported currencies.
+
         :return: Returns array of currencies.
         """
         method = "getExchangeRates"
@@ -234,8 +217,9 @@ class pyCryptoPayAPI:
 
     def get_currencies(self):
         """
-        getCurrencies
+        getCurrencies method
         Use this method to get a list of supported currencies.
+
         :return: Returns array of currencies.
         """
         method = "getCurrencies"

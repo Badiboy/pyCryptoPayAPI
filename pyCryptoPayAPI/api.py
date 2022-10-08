@@ -5,9 +5,10 @@ TEST_API_URL = "https://testnet-pay.crypt.bot/api/"
 
 # noinspection PyPep8Naming
 class pyCryptoPayException(Exception):
-    def __init__(self, code, message):
+    def __init__(self, code, message, full_error = ""):
         self.code = code
         self.message = message
+        self.full_error = full_error
         super().__init__(self.message)
 
 
@@ -62,7 +63,10 @@ class pyCryptoPayAPI:
             if self.print_errors:
                 print("Response: {}".format(resp))
             if resp.get("error"):
-                raise pyCryptoPayException(1, resp.get("error"))
+                raise pyCryptoPayException(
+                    resp["error"].get("code", 1),
+                    resp["error"].get("name", "No info"),
+                    full_error = str(resp["error"]))
             else:
                 raise pyCryptoPayException(1, "No error info provided")
         else:

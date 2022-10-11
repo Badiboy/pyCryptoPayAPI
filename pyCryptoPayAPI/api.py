@@ -158,7 +158,7 @@ class pyCryptoPayAPI:
         """
         method = "transfer"
         params = {
-            "user_id ": user_id ,
+            "user_id": user_id ,
             "asset": asset,
             "amount": amount,
             "spend_id": spend_id,

@@ -18,17 +18,19 @@ class pyCryptoPayAPI:
     Crypto Pay API Client
     """
 
-    def __init__(self, api_token, test_net = False, print_errors = False):
+    def __init__(self, api_token, test_net = False, print_errors = False, timeout = None):
         """
         Create the pyCryptoPayAPI instance.
 
         :param api_token: API token obtained via @CryptoBot
         :param test_net: (Optional) Use testnet instead of mainnet
         :param print_errors: (Optional) Print dumps on request errors
+        :param timeout: (Optional) Request timeout
         """
         self.api_token = api_token
         self.test_net = test_net
         self.print_errors = print_errors
+        self.timeout = timeout
 
     def __request(self, method, **kwargs):
         if kwargs:
@@ -41,9 +43,11 @@ class pyCryptoPayAPI:
         }
         try:
             resp = requests.get(
-                url=(TEST_API_URL if self.test_net else MAIN_API_URL) + method,
+                (TEST_API_URL if self.test_net else MAIN_API_URL) + method,
+                params=data,
                 headers = headers,
-                params=data).json()
+                timeout=self.timeout
+            ).json()
         except ValueError as ve:
             message = "Response decode failed: {}".format(ve)
             if self.print_errors:

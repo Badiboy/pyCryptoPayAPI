@@ -82,7 +82,7 @@ class pyCryptoPayAPI:
         Non-API method
         Returns the list of assets supported by Crypto Pay API.
         """
-        return ["BTC", "TON", "ETH", "USDT", "USDC", "BUSD", "BNB"]
+        return ["USDT", "TON", "BTC", "ETH", "BNB", "TRX", "BUSD", "USDC"]
 
     def get_me(self):
         """
@@ -105,7 +105,7 @@ class pyCryptoPayAPI:
         createInvoice method
         Use this method to create a new invoice.
 
-        :param asset: (String) Currency code. Supported assets: “BTC”, “TON”, “ETH”, “USDT”, “USDC” and “BUSD” (and should be "BNB").
+        :param asset: (String) Currency code. Supported assets: “USDT”, “TON”, “BTC”, “ETH”, “BNB”, “TRX”, “BUSD” and “USDC”.
         :param amount: (String) Amount of the invoice in float. For example: 125.50
         :param description: (String) Optional. Description for the invoice. User will see this description when they pay the invoice. Up to 1024 characters.
         :param hidden_message: (String) Optional. Text of the message that will be shown to a user after the invoice is paid. Up to 2o48 characters.
@@ -153,7 +153,7 @@ class pyCryptoPayAPI:
         Use this method to send coins from your app's balance to a user.
 
         :param user_id: (Number) Telegram user ID. User must have previously used @CryptoBot (@CryptoTestnetBot for testnet).
-        :param asset: (String) Currency code. Supported assets: “BTC”, “TON”, “ETH”, “USDT”, “USDC” and “BUSD” (and should be "BNB").
+        :param asset: (String) Currency code. Supported assets: “USDT”, “TON”, “BTC”, “ETH”, “BNB”, “TRX”, “BUSD” and “USDC”.
         :param amount: (String) Amount of the transfer in float. The minimum and maximum amounts for each of the support asset roughly correspond to the limit of 1-25000 USD. Use get_exchange_rates to convert amounts. For example: 125.50
         :param spend_id: (String) Unique ID to make your request idempotent and ensure that only one of the transfers with the same spend_id is accepted from your app. This parameter is useful when the transfer should be retried (i.e. request timeout, connection reset, 500 HTTP status, etc). Up to 64 symbols.
         :param comment: (String) Optional. Comment for the transfer. Users will see this comment when they receive a notification about the transfer. Up to 1024 symbols.
@@ -180,7 +180,7 @@ class pyCryptoPayAPI:
         getInvoices method
         Use this method to get invoices of your app.
 
-        :param asset: (String) Optional. Currency code. Supported assets: “BTC”, “TON”, “ETH”, “USDT”, “USDC” and “BUSD” (and should be "BNB").
+        :param asset: (String) Optional. Currency codes separated by comma. Supported assets: “USDT”, “TON”, “BTC”, “ETH”, “BNB”, “TRX”, “BUSD” and “USDC”. Defaults to all assets.
         :param invoice_ids: (String) Optional. Invoice IDs separated by comma.
         :param status: (String) Optional. Status of invoices to be returned. Available statuses: “active” and “paid”. Defaults to all statuses.
         :param offset: (Number) Optional. Offset needed to return a specific subset of invoices. Default is 0.

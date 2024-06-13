@@ -199,7 +199,7 @@ class pyCryptoPayAPI:
             params["offset"] = offset
         if count:
             params["count"] = count
-        return self.__request(method, **params).get("result")
+        return self.__request(method, **params).get("result").get('items')
 
     def get_balance(self):
         """

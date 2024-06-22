@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pyCryptoPayAPI"
+version = "0.1.0"
+description = "Simple Python implementation of Crypto Pay API (Crypto Pay is a payment system based on @CryptoBot)."
+authors = [{name = "Badiboy"}]
+license = {text = "MIT license"}
+readme = "README.md"
+requires-python = ">=3.8"
+keywords = ["python", "api", "crypto", "cryptobot", "crypto-payment", "cryptopay"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Environment :: Console",
+    "License :: OSI Approved :: MIT License"
+]
+dependencies = ["requests"]
+
+[project.urls]
+Homepage = "https://github.com/Badiboy/pyCryptoPayAPI"
+Documentation = "https://github.com/Badiboy/pyCryptoPayAPI"
+Repository = "https://github.com/Badiboy/pyCryptoPayAPI"
+Issues = "https://github.com/Badiboy/pyCryptoPayAPI/issues"
+
+
+[tool.hatch.build.targets.wheel]
+include = ["pyCryptoPayAPI/*"]

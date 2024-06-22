@@ -82,7 +82,7 @@ class pyCryptoPayAPI:
         Non-API method
         Returns the list of assets supported by Crypto Pay API.
         """
-        return ["USDT", "TON", "BTC", "ETH", "BNB", "TRX", "BUSD", "USDC"]
+        return ["USDT", "TON", "BTC", "ETH", "LTC", "BNB", "TRX", "USDC"]
 
     def get_me(self):
         """
@@ -144,6 +144,21 @@ class pyCryptoPayAPI:
             params["expires_in"] = expires_in
         return self.__request(method, **params).get("result")
 
+    def delete_invoice(self, invoice_id):
+        """
+        deleteInvoice method
+        Use this method to delete invoices created by your app.
+
+        :param invoice_id: (Number) Invoice ID to be deleted.
+        :return: Returns True on success.
+        """
+        method = "deleteInvoice"
+        params = {
+            "invoice_id": invoice_id
+        }
+        return self.__request(method, **params).get("result")
+
+
     def transfer(
             self, user_id , asset, amount, spend_id,
             comment = None, disable_send_notification  = None
@@ -174,7 +189,7 @@ class pyCryptoPayAPI:
         return self.__request(method, **params).get("result")
 
     def get_invoices(
-            self, asset = None, invoice_ids = None, status = None, offset = None, count  = None
+            self, asset = None, invoice_ids = None, status = None, offset = None, count  = None, return_items = False
     ):
         """
         getInvoices method
@@ -185,6 +200,7 @@ class pyCryptoPayAPI:
         :param status: (String) Optional. Status of invoices to be returned. Available statuses: “active” and “paid”. Defaults to all statuses.
         :param offset: (Number) Optional. Offset needed to return a specific subset of invoices. Default is 0.
         :param count: (Number) Optional. Number of invoices to be returned. Values between 1-1000 are accepted. Default is 100.
+        :param return_items: (Boolean) Optional. Return items instead of the whole response. Default is False (for compatibility), recommended True.
         :return: On success, returns an array of invoices (https://help.crypt.bot/crypto-pay-api#Invoice).
         """
         method = "getInvoices"
@@ -199,7 +215,83 @@ class pyCryptoPayAPI:
             params["offset"] = offset
         if count:
             params["count"] = count
-        return self.__request(method, **params).get("result")
+        if params:
+            res = self.__request(method, **params).get("result")
+        else:
+            res = self.__request(method).get("result")
+        if res and return_items:
+            return res.get("items")
+        else:
+            return res
+
+    def get_checks(
+            self, asset = None, check_ids = None, status = None, offset = None, count = None, return_items = True
+    ):
+        """
+        getChecks method
+        Use this method to get checks created by your app.
+
+        :param asset: (String) Optional. Cryptocurrency alphabetic code.
+        :param check_ids: (String) Optional. List of check IDs separated by comma.
+        :param status: (String) Optional. Status of check to be returned. Available statuses: “active” and “activated”. Defaults to all statuses.
+        :param offset: (Number) Optional. Offset needed to return a specific subset of check. Defaults to 0.
+        :param count: (Number) Optional. Number of check to be returned. Values between 1-1000 are accepted. Defaults to 100.
+        :param return_items: (Boolean) Optional. Return items instead of the whole response. Default is True.
+        :return: On success, returns an array of Checks (https://help.crypt.bot/crypto-pay-api#Check).
+        """
+        method = "getChecks"
+        params = {}
+        if asset:
+            params["asset"] = asset
+        if check_ids:
+            params["check_ids"] = check_ids
+        if status:
+            params["status"] = status
+        if offset:
+            params["offset"] = offset
+        if count:
+            params["count"] = count
+        if params:
+            res = self.__request(method, **params).get("result")
+        else:
+            res = self.__request(method).get("result")
+        if res and return_items:
+            return res.get("items")
+        else:
+            return res
+
+    def get_transfers(
+            self, asset = None, transfer_ids = None, offset = None, count = None, return_items = True
+    ):
+        """
+        getTransfers method
+        Use this method to get transfers created by your app.
+
+        :param asset: (String) Optional. Cryptocurrency alphabetic code.
+        :param transfer_ids: (String) Optional. List of transfer IDs separated by comma.
+        :param offset: (Number) Optional. Offset needed to return a specific subset of transfers. Defaults to 0.
+        :param count: (Number) Optional. Number of transfers to be returned. Values between 1-1000 are accepted. Defaults to 100.
+        :param return_items: (Boolean) Optional. Return items instead of the whole response. Default is True.
+        :return: On success, returns an array of transfers (https://help.crypt.bot/crypto-pay-api#Transfer).
+        """
+        method = "getTransfers"
+        params = {}
+        if asset:
+            params["asset"] = asset
+        if transfer_ids:
+            params["transfer_ids"] = transfer_ids
+        if offset:
+            params["offset"] = offset
+        if count:
+            params["count"] = count
+        if params:
+            res = self.__request(method, **params).get("result")
+        else:
+            res = self.__request(method).get("result")
+        if res and return_items:
+            return res.get("items")
+        else:
+            return res
 
     def get_balance(self):
         """
@@ -230,3 +322,42 @@ class pyCryptoPayAPI:
         """
         method = "getCurrencies"
         return self.__request(method).get("result")
+
+    def create_check(
+            self, asset, amount, pin_to_user_id = None, pin_to_username = None
+    ):
+        """
+        createCheck method
+        Use this method to create a new check.
+
+        :param asset: (String) Cryptocurrency alphabetic code.
+        :param amount: (String) Amount of the check in float. For example: 125.50
+        :param pin_to_user_id: (Number) Optional. ID of the user who will be able to activate the check.
+        :param pin_to_username: (String) Optional. A user with the specified username will be able to activate the check.
+        :return: On success, returns an object of the created check (https://help.crypt.bot/crypto-pay-api#Check).
+        """
+        method = "createCheck"
+        params = {
+            "asset": asset,
+            "amount": amount,
+        }
+        if pin_to_user_id:
+            params["pin_to_user_id"] = pin_to_user_id
+        if pin_to_username:
+            params["pin_to_username"] = pin_to_username
+        return self.__request(method, **params).get("result")
+
+    def delete_check(self, check_id):
+        """
+        deleteCheck method
+        Use this method to delete checks created by your app.
+
+        :param check_id: (Number) Check ID to be deleted.
+        :return: Returns True on success.
+
+        """
+        method = "deleteCheck"
+        params = {
+            "check_id": check_id
+        }
+        return self.__request(method, **params).get("result")

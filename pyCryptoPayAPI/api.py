@@ -1,4 +1,8 @@
 import requests
+try:
+    from classes import *
+except:
+    from classes import *
 
 MAIN_API_URL = "https://pay.crypt.bot/api/"
 TEST_API_URL = "https://testnet-pay.crypt.bot/api/"
@@ -18,19 +22,24 @@ class pyCryptoPayAPI:
     Crypto Pay API Client
     """
 
-    def __init__(self, api_token, test_net = False, print_errors = False, timeout = None):
+    def __init__(self, api_token, result_as_class = None, test_net = False, print_errors = False, timeout = None):
         """
         Create the pyCryptoPayAPI instance.
 
         :param api_token: API token obtained via @CryptoBot
+        :param result_as_class: (Optional) If True, returns instances of classes, otherwise returns raw data
         :param test_net: (Optional) Use testnet instead of mainnet
         :param print_errors: (Optional) Print dumps on request errors
         :param timeout: (Optional) Request timeout
         """
         self.api_token = api_token
+        self.result_as_class = result_as_class if result_as_class else False
         self.test_net = test_net
         self.print_errors = print_errors
         self.timeout = timeout
+        if result_as_class is None:
+            print("Deprecation warning! The 'result_as_class' parameter should be set to False or True, default behaviour will be changed to 'True' in future versions!")
+
 
     def __request(self, method, **kwargs):
         if kwargs:
@@ -92,20 +101,25 @@ class pyCryptoPayAPI:
         :return: On success, returns basic information about an app.
         """
         method = "getMe"
-        return self.__request(method).get("result")
+        result = self.__request(method).get("result")
+        return Me(result) if self.result_as_class else result
 
     def create_invoice(
-            self, asset, amount,
+            self, asset = None, amount = 0,
             description = None, hidden_message = None,
             paid_btn_name = None, paid_btn_url = None, payload = None,
             allow_comments = None, allow_anonymous = None,
-            expires_in = None
+            expires_in = None, currency_type = None, fiat = None,
+            accepted_assets = None, swap_to = None
     ):
         """
         createInvoice method
         Use this method to create a new invoice.
 
+        :param currency_type: (String) Optional. Type of the price, can be “crypto” or “fiat”. Defaults to crypto.
         :param asset: (String) Currency code. Supported assets: “USDT”, “TON”, “BTC”, “ETH”, “BNB”, “TRX”, “BUSD” and “USDC”.
+        :param fiat: (String) Optional. Required if currency_type is “fiat”. Fiat currency code. Supported fiat currencies: “USD”, “EUR”, “RUB”, “BYN”, “UAH”, “GBP”, “CNY”, “KZT”, “UZS”, “GEL”, “TRY”, “AMD”, “THB”, “INR”, “BRL”, “IDR”, “AZN”, “AED”, “PLN” and “ILS".
+        :param accepted_assets: (String) Optional. List of cryptocurrency alphabetic codes separated by comma. Assets which can be used to pay the invoice. Available only if currency_type is “fiat”. Supported assets: “USDT”, “TON”, “BTC”, “ETH”, “BNB”, “TRX” and “USDC” (and “JET” for testnet). Defaults to all currencies.
         :param amount: (String) Amount of the invoice in float. For example: 125.50
         :param description: (String) Optional. Description for the invoice. User will see this description when they pay the invoice. Up to 1024 characters.
         :param hidden_message: (String) Optional. Text of the message that will be shown to a user after the invoice is paid. Up to 2o48 characters.
@@ -114,6 +128,7 @@ class pyCryptoPayAPI:
             openChannel – “View Channel”
             openBot – “Open Bot”
             callback – “Return”
+        :param swap_to : (String) Optional. The asset that will be attempted to be swapped into after the user makes a payment (the swap is not guaranteed). Supported assets: "USDT", "TON", "TRX", "ETH", "SOL", "BTC", "LTC".
         :param paid_btn_url: (String) Optional. Required if paid_btn_name is used.URL to be opened when the button is pressed. You can set any success link (for example, a link to your bot). Starts with https or http.
         :param payload: (String) Optional. Any data you want to attach to the invoice (for example, user ID, payment ID, ect). Up to 4kb.
         :param allow_comments: (Boolean) Optional. Allow a user to add a comment to the payment. Default is true.
@@ -123,15 +138,24 @@ class pyCryptoPayAPI:
         """
         method = "createInvoice"
         params = {
-            "asset": asset,
-            "amount": amount,
+            "amount": amount if amount else 0,
         }
+        if currency_type:
+            params["currency_type"] = currency_type
+        if asset:
+            params["asset"] = asset
+        if fiat:
+            params["fiat"] = fiat
+        if accepted_assets:
+            params["accepted_assets"] = accepted_assets
         if description:
             params["description"] = description
         if hidden_message:
             params["hidden_message"] = hidden_message
         if paid_btn_name:
             params["paid_btn_name"] = paid_btn_name
+        if swap_to:
+            params["swap_to"] = swap_to
         if paid_btn_url:
             params["paid_btn_url"] = paid_btn_url
         if payload:
@@ -142,7 +166,8 @@ class pyCryptoPayAPI:
             params["allow_anonymous"] = allow_anonymous
         if expires_in:
             params["expires_in"] = expires_in
-        return self.__request(method, **params).get("result")
+        result = self.__request(method, **params).get("result")
+        return Invoice(result) if self.result_as_class else result
 
     def delete_invoice(self, invoice_id):
         """
@@ -156,8 +181,8 @@ class pyCryptoPayAPI:
         params = {
             "invoice_id": invoice_id
         }
-        return self.__request(method, **params).get("result")
-
+        result = self.__request(method, **params).get("result")
+        return result
 
     def transfer(
             self, user_id , asset, amount, spend_id,
@@ -186,16 +211,18 @@ class pyCryptoPayAPI:
             params["comment"] = comment
         if disable_send_notification is not None:
             params["disable_send_notification"] = disable_send_notification
-        return self.__request(method, **params).get("result")
+        result = self.__request(method, **params).get("result")
+        return Transfer(result) if self.result_as_class else result
 
     def get_invoices(
-            self, asset = None, invoice_ids = None, status = None, offset = None, count  = None, return_items = False
+            self, asset = None, fiat = None, invoice_ids = None, status = None, offset = None, count  = None, return_items = False
     ):
         """
         getInvoices method
         Use this method to get invoices of your app.
 
-        :param asset: (String) Optional. Currency codes separated by comma. Supported assets: “USDT”, “TON”, “BTC”, “ETH”, “BNB”, “TRX”, “BUSD” and “USDC”. Defaults to all assets.
+        :param asset: (String) Optional. Cryptocurrency alphabetic code. Supported assets: “USDT”, “TON”, “BTC”, “ETH”, “LTC”, “BNB”, “TRX” and “USDC” (and “JET” for testnet). Defaults to all currencies.
+        :param fiat: (String) Optional. Fiat currency code. Supported fiat currencies: “USD”, “EUR”, “RUB”, “BYN”, “UAH”, “GBP”, “CNY”, “KZT”, “UZS”, “GEL”, “TRY”, “AMD”, “THB”, “INR”, “BRL”, “IDR”, “AZN”, “AED”, “PLN” and “ILS". Defaults to all currencies.
         :param invoice_ids: (String) Optional. Invoice IDs separated by comma.
         :param status: (String) Optional. Status of invoices to be returned. Available statuses: “active” and “paid”. Defaults to all statuses.
         :param offset: (Number) Optional. Offset needed to return a specific subset of invoices. Default is 0.
@@ -207,6 +234,8 @@ class pyCryptoPayAPI:
         params = {}
         if asset:
             params["asset"] = asset
+        if fiat:
+            params["fiat"] = fiat
         if invoice_ids:
             params["invoice_ids"] = invoice_ids
         if status:
@@ -216,13 +245,17 @@ class pyCryptoPayAPI:
         if count:
             params["count"] = count
         if params:
-            res = self.__request(method, **params).get("result")
+            result = self.__request(method, **params).get("result")
         else:
-            res = self.__request(method).get("result")
-        if res and return_items:
-            return res.get("items")
+            result = self.__request(method).get("result")
+        if not result:
+            return [] if return_items else None
+        elif self.result_as_class:
+            return [Invoice(item) for item in result.get("items", [])]
+        elif return_items:
+            return result.get("items")
         else:
-            return res
+            return result
 
     def get_checks(
             self, asset = None, check_ids = None, status = None, offset = None, count = None, return_items = True
@@ -252,16 +285,20 @@ class pyCryptoPayAPI:
         if count:
             params["count"] = count
         if params:
-            res = self.__request(method, **params).get("result")
+            result = self.__request(method, **params).get("result")
         else:
-            res = self.__request(method).get("result")
-        if res and return_items:
-            return res.get("items")
+            result = self.__request(method).get("result")
+        if not result:
+            return [] if return_items else None
+        elif self.result_as_class:
+            return [Check(item) for item in result.get("items", [])]
+        elif return_items:
+            return result.get("items")
         else:
-            return res
+            return result
 
     def get_transfers(
-            self, asset = None, transfer_ids = None, offset = None, count = None, return_items = True
+            self, asset = None, transfer_ids = None, spend_id = None, offset = None, count = None, return_items = True
     ):
         """
         getTransfers method
@@ -269,6 +306,7 @@ class pyCryptoPayAPI:
 
         :param asset: (String) Optional. Cryptocurrency alphabetic code.
         :param transfer_ids: (String) Optional. List of transfer IDs separated by comma.
+        :param spend_id : (String) Optional. Unique UTF-8 transfer string.
         :param offset: (Number) Optional. Offset needed to return a specific subset of transfers. Defaults to 0.
         :param count: (Number) Optional. Number of transfers to be returned. Values between 1-1000 are accepted. Defaults to 100.
         :param return_items: (Boolean) Optional. Return items instead of the whole response. Default is True.
@@ -280,18 +318,24 @@ class pyCryptoPayAPI:
             params["asset"] = asset
         if transfer_ids:
             params["transfer_ids"] = transfer_ids
+        if spend_id:
+            params["spend_id"] = spend_id
         if offset:
             params["offset"] = offset
         if count:
             params["count"] = count
         if params:
-            res = self.__request(method, **params).get("result")
+            result = self.__request(method, **params).get("result")
         else:
-            res = self.__request(method).get("result")
-        if res and return_items:
-            return res.get("items")
+            result = self.__request(method).get("result")
+        if not result:
+            return [] if return_items else None
+        elif self.result_as_class:
+            return [Transfer(item) for item in result.get("items", [])]
+        elif return_items:
+            return result.get("items")
         else:
-            return res
+            return result
 
     def get_balance(self):
         """
@@ -301,7 +345,13 @@ class pyCryptoPayAPI:
         :return: Returns array of assets.
         """
         method = "getBalance"
-        return self.__request(method).get("result")
+        result = self.__request(method).get("result")
+        if not result:
+            return []
+        elif self.result_as_class:
+            return [Balance(item) for item in result]
+        else:
+            return result
 
     def get_exchange_rates(self):
         """
@@ -311,7 +361,13 @@ class pyCryptoPayAPI:
         :return: Returns array of currencies.
         """
         method = "getExchangeRates"
-        return self.__request(method).get("result")
+        result = self.__request(method).get("result")
+        if not result:
+            return []
+        elif self.result_as_class:
+            return [ExchangeRate(item) for item in result]
+        else:
+            return result
 
     def get_currencies(self):
         """
@@ -345,7 +401,8 @@ class pyCryptoPayAPI:
             params["pin_to_user_id"] = pin_to_user_id
         if pin_to_username:
             params["pin_to_username"] = pin_to_username
-        return self.__request(method, **params).get("result")
+        result =  self.__request(method, **params).get("result")
+        return Check(result) if self.result_as_class else result
 
     def delete_check(self, check_id):
         """
@@ -361,3 +418,21 @@ class pyCryptoPayAPI:
             "check_id": check_id
         }
         return self.__request(method, **params).get("result")
+
+    def get_stats(self, start_at = None, end_at = None):
+        """
+        getStats method
+        Use this method to get app statistics.
+
+        :param start_at: (DateTime/String) Optional. Date from which start calculating statistics in ISO 8601 format. Defaults is current date minus 24 hours.
+        :param end_at: (DateTime/String) Optional. The date on which to finish calculating statistics in ISO 8601 format. Defaults is current date.
+        :return: Returns AppStats.
+        """
+        method = "getStats"
+        params = {}
+        if start_at:
+            params["start_at"] = start_at
+        if end_at:
+            params["end_at"] = end_at
+        result = self.__request(method, **params).get("result")
+        return AppStats(result) if self.result_as_class else result

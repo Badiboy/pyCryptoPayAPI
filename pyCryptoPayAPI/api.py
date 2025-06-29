@@ -1,8 +1,5 @@
 import requests
-try:
-    from classes import *
-except:
-    from classes import *
+from .classes import *
 
 MAIN_API_URL = "https://pay.crypt.bot/api/"
 TEST_API_URL = "https://testnet-pay.crypt.bot/api/"

@@ -24,7 +24,7 @@ def run_and_print(f):
         raise e
     return None
 
-def test_api_functions(result_as_class):
+def run_api_functions(result_as_class):
     client = pyCryptoPayAPI(api_token=test_api_token, print_errors=True, result_as_class=result_as_class)
     run_and_print(lambda: client.get_me())
     run_and_print(lambda: client.get_balance())
@@ -62,5 +62,11 @@ def test_api_functions(result_as_class):
         count=10,
     ))
 
-test_api_functions(False)
-test_api_functions(True)
+def test_api_functions_raw():
+    run_api_functions(False)
+
+def test_api_functions_class():
+    run_api_functions(True)
+
+test_api_functions_raw()
+test_api_functions_class()

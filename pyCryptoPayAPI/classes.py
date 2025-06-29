@@ -137,3 +137,16 @@ class AppStats(CrypoPayBase):
         self.start_at = None              # The date on which the statistics calculation was started in ISO 8601 format.
         self.end_at = None                # The date on which the statistics calculation was ended in ISO 8601 format.
         super().__init__(data)
+
+
+class Currency(CrypoPayBase):
+    """Class representing a single currency (not officially declared in API)."""
+    def __init__(self, data):
+        self.is_blockchain = None    # True, if the currency is a blockchain asset.
+        self.is_stablecoin = None    # True, if the currency is a stablecoin.
+        self.is_fiat = None          # True, if the currency is a fiat currency.
+        self.name = None             # Name of the currency.
+        self.code = None             # Code of the currency.
+        self.url = None              # URL of the currency's website.
+        self.decimals = None         # Number of decimals for the currency.
+        super().__init__(data)

@@ -374,7 +374,13 @@ class pyCryptoPayAPI:
         :return: Returns array of currencies.
         """
         method = "getCurrencies"
-        return self.__request(method).get("result")
+        result = self.__request(method).get("result")
+        if not result:
+            return []
+        elif self.result_as_class:
+            return [Currency(item) for item in result]
+        else:
+            return result
 
     def create_check(
             self, asset, amount, pin_to_user_id = None, pin_to_username = None

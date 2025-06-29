@@ -17,7 +17,7 @@ Everything is as simple as the [API](https://help.crypt.bot/crypto-pay-api#avail
 2. Access API methods in pythonic notation (getInvoices -> get_invoices)
 ```
 from pyCryptoPayAPI import pyCryptoPayAPI
-client = pyCryptoPayAPI(api_token="zzz")
+client = pyCryptoPayAPI("API_TOKEN")
 print(client.get_balance())
 ```
 You can also check tests.py.

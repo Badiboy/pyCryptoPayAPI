@@ -25,7 +25,7 @@ def run_and_print(f):
     return None
 
 def run_api_functions(result_as_class):
-    client = pyCryptoPayAPI(api_token=test_api_token, print_errors=True, result_as_class=result_as_class)
+    client = pyCryptoPayAPI(test_api_token, print_errors=True, result_as_class=result_as_class)
     run_and_print(lambda: client.get_me())
     run_and_print(lambda: client.get_balance())
     run_and_print(lambda: client.get_exchange_rates())

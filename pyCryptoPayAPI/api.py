@@ -434,8 +434,8 @@ class pyCryptoPayAPI:
         method = "getStats"
         params = {}
         if start_at:
-            params["start_at"] = start_at
+            params["start_at"] = start_at if isinstance(start_at, str) else start_at.isoformat()
         if end_at:
-            params["end_at"] = end_at
+            params["end_at"] = end_at if isinstance(end_at, str) else end_at.isoformat()
         result = self.__request(method, **params).get("result")
         return AppStats(result) if self.result_as_class else result

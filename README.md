@@ -3,7 +3,7 @@
 [![PyPi downloads](https://img.shields.io/pypi/dm/pyCryptoPayAPI.svg)](https://pypi.org/project/pyCryptoPayAPI/)
 
 # <p align="center">pyCryptoPayAPI</p>
-Simple Python implementation of [Crypto Pay API](https://help.crypt.bot/crypto-pay-api) (Crypto Pay is a payment system based on [@CryptoBot](http://t.me/CryptoBot))
+Python implementation of [Crypto Pay API](https://help.crypt.bot/crypto-pay-api) (Crypto Pay is a payment system based on [@CryptoBot](http://t.me/CryptoBot))
 
 # Installation
 Installation using pip (a Python package manager):

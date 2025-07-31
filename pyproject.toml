@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyCryptoPayAPI"
-version = "1.0.0"
+version = "1.0.1"
 description = "Simple Python implementation of Crypto Pay API (Crypto Pay is a payment system based on @CryptoBot)."
 authors = [{name = "Badiboy"}]
 license = {text = "MIT license"}

@@ -77,7 +77,7 @@ class pyCryptoPayAPI:
                 raise pyCryptoPayException(
                     resp["error"].get("code", 1),
                     resp["error"].get("name", "---"),
-                    resp["error"].get("message", "No info"),
+                    resp["error"].get("message", resp["error"].get("description", "No info")),
                     full_error = str(resp["error"]))
             else:
                 raise pyCryptoPayException(1, "NO_INFO", "No error info provided")

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyCryptoPayAPI"
-version = "1.0.1"
+version = "1.0.2"
 description = "Simple Python implementation of Crypto Pay API (Crypto Pay is a payment system based on @CryptoBot)."
 authors = [{name = "Badiboy"}]
 license = {text = "MIT license"}
@@ -12,7 +12,7 @@ readme = "README.md"
 requires-python = ">=3.9"
 keywords = ["python", "api", "crypto", "cryptobot", "crypto-payment", "cryptopay"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",

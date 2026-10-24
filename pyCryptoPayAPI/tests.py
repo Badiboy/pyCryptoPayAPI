@@ -2,10 +2,12 @@ import inspect, datetime
 from time import sleep
 try:
     from pyCryptoPayAPI import pyCryptoPayAPI, pyCryptoPayException
+    from pyCryptoPayAPI.test_config import load_test_api_token
 except:
     from api import pyCryptoPayAPI, pyCryptoPayException
+    from test_config import load_test_api_token
 
-test_api_token = "52586:AA2DKQyUAnZFELNOihEqjlfact0XsxoUmGy"
+test_api_token = load_test_api_token()
 
 def run_and_print(f):
     try:

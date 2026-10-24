@@ -3,7 +3,7 @@
 [![PyPi downloads](https://img.shields.io/pypi/dm/pyCryptoPayAPI.svg)](https://pypi.org/project/pyCryptoPayAPI/)
 
 # <p align="center">pyCryptoPayAPI</p>
-Python implementation of [Crypto Pay API](https://help.crypt.bot/crypto-pay-api) (Crypto Pay is a payment system based on [@CryptoBot](http://t.me/CryptoBot))
+Python implementation of [Crypto Pay API](https://help.cr.bot/en/articles/10279948-crypto-pay-api) (Crypto Pay is a payment system based on [@CryptoBot](http://t.me/CryptoBot))
 
 # Installation
 Installation using pip (a Python package manager):
@@ -12,7 +12,7 @@ $ pip install pyCryptoPayAPI
 ```
 
 # Usage
-Everything is as simple as the [API](https://help.crypt.bot/crypto-pay-api#available-methods) itself.
+Everything is as simple as the [API](https://help.cr.bot/en/articles/10279948-crypto-pay-api#h_7a767b4c96) itself.
 1. Create pyCryptoPayAPI instance
 2. Access API methods in pythonic notation (getInvoices -> get_invoices)
 ```

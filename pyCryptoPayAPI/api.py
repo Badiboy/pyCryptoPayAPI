@@ -6,11 +6,16 @@ TEST_API_URL = "https://testnet-pay.crypt.bot/api/"
 
 # noinspection PyPep8Naming
 class pyCryptoPayException(Exception):
-    def __init__(self, code, name, message, full_error = ""):
+    def __init__(self, code, name, message, full_error = "", status_code = None,
+                 response_text = None, request_url = None, cause = None):
         self.code = code
         self.name = name
         self.message = message
         self.full_error = full_error
+        self.status_code = status_code
+        self.response_text = response_text
+        self.request_url = request_url
+        self.cause = cause
         super().__init__(self.message)
 
 
@@ -20,7 +25,7 @@ class pyCryptoPayAPI:
     Crypto Pay API Client
     """
 
-    def __init__(self, api_token, result_as_class = None, test_net = False, print_errors = False, timeout = None):
+    def __init__(self, api_token, result_as_class = None, test_net = False, print_errors = False, timeout = 10):
         """
         Create the pyCryptoPayAPI instance.
 
@@ -28,7 +33,7 @@ class pyCryptoPayAPI:
         :param result_as_class: (Optional) If True, returns instances of classes, otherwise returns raw data
         :param test_net: (Optional) Use testnet instead of mainnet
         :param print_errors: (Optional) Print dumps on request errors
-        :param timeout: (Optional) Request timeout
+        :param timeout: (Optional, default=10) Request timeout in seconds. Pass None to disable it.
         """
         self.api_token = api_token
         self.result_as_class = result_as_class if result_as_class else False
@@ -48,28 +53,49 @@ class pyCryptoPayAPI:
         headers = {
             "Crypto-Pay-API-Token": self.api_token
         }
+        request_url = (TEST_API_URL if self.test_net else MAIN_API_URL) + method
+        response = None
         try:
-            resp = requests.get(
-                (TEST_API_URL if self.test_net else MAIN_API_URL) + method,
+            response = requests.get(
+                request_url,
                 params=data,
                 headers = headers,
                 timeout=self.timeout
-            ).json()
+            )
+            resp = response.json()
         except ValueError as ve:
+            status_code = response.status_code if response is not None else None
+            response_text = response.text if response is not None else None
             message = "Response decode failed: {}".format(ve)
             if self.print_errors:
                 print(message)
-            raise pyCryptoPayException(-2, "JSON", message)
+            raise pyCryptoPayException(
+                -2, "JSON", message, full_error=response_text or "",
+                status_code=status_code, response_text=response_text,
+                request_url=request_url, cause=ve) from ve
+        except requests.RequestException as re:
+            message = "Request transport exception: {}".format(re)
+            if self.print_errors:
+                print(message)
+            raise pyCryptoPayException(
+                -3, "TRANSPORT", message, request_url=request_url,
+                cause=re) from re
         except Exception as e:
             message = "Request unknown exception: {}".format(e)
             if self.print_errors:
                 print(message)
-            raise pyCryptoPayException(-3, "UNKNOWN", message)
+            raise pyCryptoPayException(
+                -3, "UNKNOWN", message, request_url=request_url,
+                cause=e) from e
+        status_code = response.status_code if response is not None else None
+        response_text = response.text if response is not None else None
         if not resp:
             message = "None request response"
             if self.print_errors:
                 print(message)
-            raise pyCryptoPayException(-4, "NONE", message)
+            raise pyCryptoPayException(
+                -4, "NONE", message, status_code=status_code,
+                response_text=response_text, request_url=request_url)
         elif not resp.get("ok"):
             if self.print_errors:
                 print("Response: {}".format(resp))
@@ -78,9 +104,12 @@ class pyCryptoPayAPI:
                     resp["error"].get("code", 1),
                     resp["error"].get("name", "---"),
                     resp["error"].get("message", resp["error"].get("description", "No info")),
-                    full_error = str(resp["error"]))
+                    full_error=str(resp["error"]), status_code=status_code,
+                    response_text=response_text, request_url=request_url)
             else:
-                raise pyCryptoPayException(1, "NO_INFO", "No error info provided")
+                raise pyCryptoPayException(
+                    -1, "NO_INFO", "No error info provided", status_code=status_code,
+                    response_text=response_text, request_url=request_url)
         else:
             return resp
 
@@ -116,24 +145,24 @@ class pyCryptoPayAPI:
         Use this method to create a new invoice.
 
         :param currency_type: (String) Optional. Type of the price, can be “crypto” or “fiat”. Defaults to crypto.
-        :param asset: (String) Currency code. Supported assets: “USDT”, “TON”, “BTC”, “ETH”, “BNB”, “TRX”, “BUSD” and “USDC”.
+        :param asset: (String) Currency code. Supported mainnet assets: “USDT”, “TON”, “BTC”, “ETH”, “LTC”, “BNB”, “TRX” and “USDC”.
         :param fiat: (String) Optional. Required if currency_type is “fiat”. Fiat currency code. Supported fiat currencies: “USD”, “EUR”, “RUB”, “BYN”, “UAH”, “GBP”, “CNY”, “KZT”, “UZS”, “GEL”, “TRY”, “AMD”, “THB”, “INR”, “BRL”, “IDR”, “AZN”, “AED”, “PLN” and “ILS".
-        :param accepted_assets: (String) Optional. List of cryptocurrency alphabetic codes separated by comma. Assets which can be used to pay the invoice. Available only if currency_type is “fiat”. Supported assets: “USDT”, “TON”, “BTC”, “ETH”, “BNB”, “TRX” and “USDC” (and “JET” for testnet). Defaults to all currencies.
-        :param amount: (String) Amount of the invoice in float. For example: 125.50
+        :param accepted_assets: (String) Optional. List of cryptocurrency alphabetic codes separated by commas. Assets which can be used to pay the invoice. Available only if currency_type is “fiat”. Supported mainnet assets: “USDT”, “TON”, “BTC”, “ETH”, “LTC”, “BNB”, “TRX” and “USDC” (and “JET” for testnet). Defaults to all currencies.
+        :param amount: (String) Invoice amount as a decimal string. For example: 125.50
         :param description: (String) Optional. Description for the invoice. User will see this description when they pay the invoice. Up to 1024 characters.
-        :param hidden_message: (String) Optional. Text of the message that will be shown to a user after the invoice is paid. Up to 2o48 characters.
+        :param hidden_message: (String) Optional. Text of the message that will be shown to a user after the invoice is paid. Up to 2048 characters.
         :param paid_btn_name: (String) Optional. Name of the button that will be shown to a user after the invoice is paid. Supported names:
             viewItem – “View Item”
             openChannel – “View Channel”
             openBot – “Open Bot”
             callback – “Return”
         :param swap_to : (String) Optional. The asset that will be attempted to be swapped into after the user makes a payment (the swap is not guaranteed). Supported assets: "USDT", "TON", "TRX", "ETH", "SOL", "BTC", "LTC".
-        :param paid_btn_url: (String) Optional. Required if paid_btn_name is used.URL to be opened when the button is pressed. You can set any success link (for example, a link to your bot). Starts with https or http.
-        :param payload: (String) Optional. Any data you want to attach to the invoice (for example, user ID, payment ID, ect). Up to 4kb.
+        :param paid_btn_url: (String) Optional. Required if paid_btn_name is used. URL to be opened when the button is pressed. You can set any success link (for example, a link to your bot). Starts with https or http.
+        :param payload: (String) Optional. Any data you want to attach to the invoice (for example, user ID or payment ID). Up to 4 KB.
         :param allow_comments: (Boolean) Optional. Allow a user to add a comment to the payment. Default is true.
         :param allow_anonymous: (Boolean) Optional. Allow a user to pay the invoice anonymously. Default is true.
         :param expires_in: (Number) Optional. You can set a payment time limit for the invoice in seconds. Values between 1-2678400 are accepted.
-        :return: On success, returns an object of the created invoice (https://help.crypt.bot/crypto-pay-api#Invoice).
+        :return: On success, returns an object of the created invoice (https://help.cr.bot/en/articles/10279948-crypto-pay-api).
         """
         method = "createInvoice"
         params = {
@@ -192,12 +221,12 @@ class pyCryptoPayAPI:
         Use this method to send coins from your app's balance to a user.
 
         :param user_id: (Number) Telegram user ID. User must have previously used @CryptoBot (@CryptoTestnetBot for testnet).
-        :param asset: (String) Currency code. Supported assets: “USDT”, “TON”, “BTC”, “ETH”, “BNB”, “TRX”, “BUSD” and “USDC”.
-        :param amount: (String) Amount of the transfer in float. The minimum and maximum amounts for each of the support asset roughly correspond to the limit of 1-25000 USD. Use get_exchange_rates to convert amounts. For example: 125.50
+        :param asset: (String) Currency code. Supported mainnet assets: “USDT”, “TON”, “BTC”, “ETH”, “LTC”, “BNB”, “TRX” and “USDC”.
+        :param amount: (String) Transfer amount as a decimal string. The minimum and maximum amounts for each supported asset roughly correspond to the limit of 1-25000 USD. Use get_exchange_rates to convert amounts. For example: 125.50
         :param spend_id: (String) Unique ID to make your request idempotent and ensure that only one of the transfers with the same spend_id is accepted from your app. This parameter is useful when the transfer should be retried (i.e. request timeout, connection reset, 500 HTTP status, etc). Up to 64 symbols.
         :param comment: (String) Optional. Comment for the transfer. Users will see this comment when they receive a notification about the transfer. Up to 1024 symbols.
-        :param disable_send_notification: (Boolean) Optional. Pass true if the user should not receive a notification about the transfer.Default is false.
-        :return: On success, returns an object of the created transfer (https://help.crypt.bot/crypto-pay-api#Transfer).
+        :param disable_send_notification: (Boolean) Optional. Pass true if the user should not receive a notification about the transfer. Default is false.
+        :return: On success, returns an object of the created transfer (https://help.cr.bot/en/articles/10279948-crypto-pay-api).
         """
         method = "transfer"
         params = {

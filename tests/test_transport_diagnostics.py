@@ -13,6 +13,20 @@ class TransportDiagnosticsTests(unittest.TestCase):
     def test_explicit_timeout_is_preserved(self):
         self.assertIsNone(pyCryptoPayAPI("token", result_as_class=False, timeout=None).timeout)
 
+    def test_timeout_is_forwarded_to_requests_get(self):
+        for configured_timeout in (10, 3.5, None):
+            with self.subTest(timeout=configured_timeout):
+                client = pyCryptoPayAPI(
+                    "token", result_as_class=False, timeout=configured_timeout
+                )
+                response = Mock()
+                response.json.return_value = {"ok": True, "result": {}}
+
+                with patch("pyCryptoPayAPI.api.requests.get", return_value=response) as get:
+                    client.get_me()
+
+                self.assertEqual(configured_timeout, get.call_args.kwargs["timeout"])
+
     def test_transport_error_exposes_url_and_cause(self):
         client = pyCryptoPayAPI("token", result_as_class=False)
 

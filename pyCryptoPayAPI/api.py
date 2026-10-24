@@ -117,7 +117,9 @@ class pyCryptoPayAPI:
     def get_assets():
         """
         Non-API method
-        Returns the list of assets supported by Crypto Pay API.
+        Returns the documented mainnet asset list used by this SDK helper.
+        This static list is not a live capability query and does not include
+        testnet-only JET.
         """
         return ["USDT", "TON", "BTC", "ETH", "LTC", "BNB", "TRX", "USDC"]
 
@@ -145,7 +147,7 @@ class pyCryptoPayAPI:
         Use this method to create a new invoice.
 
         :param currency_type: (String) Optional. Type of the price, can be “crypto” or “fiat”. Defaults to crypto.
-        :param asset: (String) Currency code. Supported mainnet assets: “USDT”, “TON”, “BTC”, “ETH”, “LTC”, “BNB”, “TRX” and “USDC”.
+        :param asset: (String) Required if currency_type is “crypto”. Currency code. Supported documented mainnet assets: “USDT”, “TON”, “BTC”, “ETH”, “LTC”, “BNB”, “TRX” and “USDC”.
         :param fiat: (String) Optional. Required if currency_type is “fiat”. Fiat currency code. Supported fiat currencies: “USD”, “EUR”, “RUB”, “BYN”, “UAH”, “GBP”, “CNY”, “KZT”, “UZS”, “GEL”, “TRY”, “AMD”, “THB”, “INR”, “BRL”, “IDR”, “AZN”, “AED”, “PLN” and “ILS".
         :param accepted_assets: (String) Optional. List of cryptocurrency alphabetic codes separated by commas. Assets which can be used to pay the invoice. Available only if currency_type is “fiat”. Supported mainnet assets: “USDT”, “TON”, “BTC”, “ETH”, “LTC”, “BNB”, “TRX” and “USDC” (and “JET” for testnet). Defaults to all currencies.
         :param amount: (String) Invoice amount as a decimal string. For example: 125.50
@@ -221,7 +223,7 @@ class pyCryptoPayAPI:
         Use this method to send coins from your app's balance to a user.
 
         :param user_id: (Number) Telegram user ID. User must have previously used @CryptoBot (@CryptoTestnetBot for testnet).
-        :param asset: (String) Currency code. Supported mainnet assets: “USDT”, “TON”, “BTC”, “ETH”, “LTC”, “BNB”, “TRX” and “USDC”.
+        :param asset: (String) Currency code. Supported documented mainnet assets: “USDT”, “TON”, “BTC”, “ETH”, “LTC”, “BNB”, “TRX” and “USDC” (and “JET” for testnet).
         :param amount: (String) Transfer amount as a decimal string. The minimum and maximum amounts for each supported asset roughly correspond to the limit of 1-25000 USD. Use get_exchange_rates to convert amounts. For example: 125.50
         :param spend_id: (String) Unique ID to make your request idempotent and ensure that only one of the transfers with the same spend_id is accepted from your app. This parameter is useful when the transfer should be retried (i.e. request timeout, connection reset, 500 HTTP status, etc). Up to 64 symbols.
         :param comment: (String) Optional. Comment for the transfer. Users will see this comment when they receive a notification about the transfer. Up to 1024 symbols.
@@ -292,7 +294,7 @@ class pyCryptoPayAPI:
         getChecks method
         Use this method to get checks created by your app.
 
-        :param asset: (String) Optional. Cryptocurrency alphabetic code.
+        :param asset: (String) Optional. Cryptocurrency alphabetic code. Supported documented mainnet assets: “USDT”, “TON”, “BTC”, “ETH”, “LTC”, “BNB”, “TRX” and “USDC” (and “JET” for testnet). Defaults to all currencies.
         :param check_ids: (String) Optional. List of check IDs separated by comma.
         :param status: (String) Optional. Status of check to be returned. Available statuses: “active” and “activated”. Defaults to all statuses.
         :param offset: (Number) Optional. Offset needed to return a specific subset of check. Defaults to 0.
@@ -332,7 +334,7 @@ class pyCryptoPayAPI:
         getTransfers method
         Use this method to get transfers created by your app.
 
-        :param asset: (String) Optional. Cryptocurrency alphabetic code.
+        :param asset: (String) Optional. Cryptocurrency alphabetic code. Supported documented mainnet assets: “USDT”, “TON”, “BTC”, “ETH”, “LTC”, “BNB”, “TRX” and “USDC” (and “JET” for testnet). Defaults to all currencies.
         :param transfer_ids: (String) Optional. List of transfer IDs separated by comma.
         :param spend_id : (String) Optional. Unique UTF-8 transfer string.
         :param offset: (Number) Optional. Offset needed to return a specific subset of transfers. Defaults to 0.
@@ -420,7 +422,7 @@ class pyCryptoPayAPI:
         createCheck method
         Use this method to create a new check.
 
-        :param asset: (String) Cryptocurrency alphabetic code.
+        :param asset: (String) Cryptocurrency alphabetic code. Supported documented mainnet assets: “USDT”, “TON”, “BTC”, “ETH”, “LTC”, “BNB”, “TRX” and “USDC” (and “JET” for testnet).
         :param amount: (String) Amount of the check in float. For example: 125.50
         :param pin_to_user_id: (Number) Optional. ID of the user who will be able to activate the check.
         :param pin_to_username: (String) Optional. A user with the specified username will be able to activate the check.

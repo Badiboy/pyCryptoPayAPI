@@ -123,6 +123,17 @@ class pyCryptoPayAPI:
         """
         return ["USDT", "TON", "BTC", "ETH", "LTC", "BNB", "TRX", "USDC"]
 
+    def process_webhook(self, raw_body, signature):
+        """Verify and parse an inbound webhook using this client's token.
+
+        ``raw_body`` must be exact HTTP bytes and ``signature`` must be the
+        crypto-pay-api-signature header. The application owns HTTP reception,
+        database-backed idempotency, request_date policy, acknowledgement, and
+        business processing; this method only verifies and parses.
+        """
+        from .webhooks import parse_and_verify_webhook
+        return parse_and_verify_webhook(raw_body, signature, self.api_token)
+
     def get_me(self):
         """
         getMe method

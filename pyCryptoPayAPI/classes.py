@@ -150,3 +150,15 @@ class Currency(CrypoPayBase):
         self.url = None              # URL of the currency's website.
         self.decimals = None         # Number of decimals for the currency.
         super().__init__(data)
+
+
+class Update(CrypoPayBase):
+    """A Crypto Pay webhook update; invoice_paid payloads become Invoice."""
+    def __init__(self, data):
+        self.update_id = None
+        self.update_type = None
+        self.request_date = None
+        self.payload = None
+        super().__init__(data)
+        if self.update_type == "invoice_paid" and isinstance(self.payload, dict):
+            self.payload = Invoice(self.payload)

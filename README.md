@@ -5,6 +5,8 @@
 # <p align="center">pyCryptoPayAPI</p>
 Python implementation of [Crypto Pay API](https://help.cr.bot/en/articles/10279948-crypto-pay-api) (Crypto Pay is a payment system based on [@CryptoBot](http://t.me/CryptoBot))
 
+Supported runtimes: CPython 3.11–3.15 and PyPy 3.11–3.12.
+
 # Installation
 Installation using pip (a Python package manager):
 ```

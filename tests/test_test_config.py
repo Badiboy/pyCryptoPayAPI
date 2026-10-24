@@ -2,11 +2,23 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
+import subprocess
+import sys
 
 from pyCryptoPayAPI.test_config import load_test_api_token
 
 
 class LoadTestApiTokenTests(unittest.TestCase):
+    def test_live_api_module_is_skipped_without_explicit_flag(self):
+        result = subprocess.run(
+            [sys.executable, "-m", "pytest", "pyCryptoPayAPI/tests.py"],
+            capture_output=True,
+            text=True,
+        )
+
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        self.assertIn("skipped", result.stdout.lower())
+
     def test_environment_value_has_priority_over_env_file(self):
         with tempfile.TemporaryDirectory() as temporary_directory:
             env_file = Path(temporary_directory) / ".env"

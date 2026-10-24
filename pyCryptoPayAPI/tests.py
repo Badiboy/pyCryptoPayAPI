@@ -1,5 +1,7 @@
 import inspect, datetime
+import os
 from time import sleep
+
 try:
     from pyCryptoPayAPI import pyCryptoPayAPI, pyCryptoPayException
     from pyCryptoPayAPI.test_config import load_test_api_token
@@ -7,7 +9,12 @@ except:
     from api import pyCryptoPayAPI, pyCryptoPayException
     from test_config import load_test_api_token
 
-test_api_token = load_test_api_token()
+def get_live_test_api_token():
+    """Load the local live token only for an explicitly requested live run."""
+    if os.environ.get("RUN_CRYPTO_PAY_LIVE_TESTS") != "1":
+        import pytest
+        pytest.skip("live Crypto Pay API tests require RUN_CRYPTO_PAY_LIVE_TESTS=1")
+    return load_test_api_token()
 
 def run_and_print(f):
     try:
@@ -27,7 +34,7 @@ def run_and_print(f):
     return None
 
 def run_api_functions(result_as_class):
-    client = pyCryptoPayAPI(test_api_token, print_errors=True, result_as_class=result_as_class)
+    client = pyCryptoPayAPI(get_live_test_api_token(), print_errors=True, result_as_class=result_as_class)
     run_and_print(lambda: client.get_me())
     run_and_print(lambda: client.get_balance())
     run_and_print(lambda: client.get_exchange_rates())
@@ -70,5 +77,6 @@ def test_api_functions_raw():
 def test_api_functions_class():
     run_api_functions(True)
 
-test_api_functions_raw()
-test_api_functions_class()
+if __name__ == "__main__":
+    test_api_functions_raw()
+    test_api_functions_class()
